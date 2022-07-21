@@ -2,7 +2,7 @@ from setuptools import setup  # type: ignore
 from setuptools import find_packages
 
 setup(
-    name='acquisition_nagios',
+    name='station_config_check',
     version='0.0.1',
     description=('A tool for checking for changes in station device ' +
                  'configuration files'),
@@ -15,7 +15,8 @@ setup(
     # Requires python packages
     install_requires=[
         'requests',
-        'click'
+        'click',
+        'http',
     ],
     extras_require={
         'dev': [

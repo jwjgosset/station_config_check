@@ -3,6 +3,11 @@ from dataclasses import dataclass
 from station_config_check.titansma import digitizer_interface
 from station_config_check.nagios import nagios_api
 import pathlib
+import configparser
+
+
+class CredFileError(Exception):
+    pass
 
 
 @dataclass
@@ -26,7 +31,8 @@ def get_titansma_list(
 def get_running_config(
     host_name: str,
     nagios_ip: str,
-    api_key: str
+    api_key: str,
+    cred_file: str
 ):
     titansma_ip = nagios_api.fetch_host_ip(
         host_name=host_name,
@@ -34,7 +40,7 @@ def get_running_config(
         api_key=api_key
     )
 
-    credentials = fetch_credentials(host_name)
+    credentials = fetch_credentials(host_name, cred_file)
 
     cookieJar = digitizer_interface.GlobalCookieJar().addCookieToAllRequests()
 
@@ -51,22 +57,23 @@ def get_running_config(
     return config
 
 
-def load_golden_image(
-    goldenimg_dir: str,
-    host_name: str
-) -> List[str]:
-    network, station = host_name.split('-')[:2]
-
-    goldenimg_path = pathlib.Path(
-        f"{goldenimg_dir}/{network}/{station}/titansma/latest.ttl")
-
-    with open(goldenimg_path, mode='r') as f:
-        golden_img = f.read().splitlines()
-
-    return golden_img
-
-
 def fetch_credentials(
-    host_name: str
+    install_type: str,
+    cred_file: str
 ) -> TitanSMACredentials:
-    return TitanSMACredentials('', '')
+
+    cred_path = pathlib.Path(cred_file)
+
+    if not cred_path.exists():
+        raise CredFileError('Could not read specified file')
+
+    config = configparser.ConfigParser()
+
+    config.read(cred_path)
+
+    username = config['TitanSMA']['username']
+
+    password = config['TitanSMA'][install_type]
+
+    return TitanSMACredentials(
+        username=username, password=password)
