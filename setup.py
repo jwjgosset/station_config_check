@@ -15,9 +15,7 @@ setup(
     # Requires python packages
     install_requires=[
         'requests',
-        'request',
         'click',
-        'http',
     ],
     extras_require={
         'dev': [
