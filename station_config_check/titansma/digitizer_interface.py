@@ -74,10 +74,10 @@ class DigitizerInterface:
         key = self.getKey(cookiejar)
         encodedPassword = getHash(getHash(self.password) + key)
 
-        request = urllib.request.Request(self.getUrl('/login'), method='POST')
-        request.add_header('X-NMX-USERNAME', self.username)
-        request.add_header('X-NMX-PASSWORD', encodedPassword)
-        urllib.request.urlopen(request)
+        login_request = urllib.request.Request(self.getUrl('/login'), method='POST')
+        login_request.add_header('X-NMX-USERNAME', self.username)
+        login_request.add_header('X-NMX-PASSWORD', encodedPassword)
+        urllib.request.urlopen(login_request)
 
     def getConfiguration(self):
         request = urllib.request.Request(self.getUrl('/config'))
