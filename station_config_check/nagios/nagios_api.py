@@ -1,6 +1,14 @@
 from typing import List
 import requests
 from requests import HTTPError
+from dataclasses import dataclass
+
+
+@dataclass
+class NagiosHost():
+    hostname: str
+    ip_address: str
+    install_type: str
 
 
 def get_object_query(
@@ -35,7 +43,7 @@ def get_object_query(
     ------
     HTTPError: If the GET request fails in any way
     '''
-    query = (f"{nagios_ip}/nagiosxi/api/v1/objects/{object_query}" +
+    query = (f"http://{nagios_ip}/nagiosxi/api/v1/objects/{object_query}" +
              f"&apikey={api_key}&pretty=1")
     query_response = requests.get(query)
     query_response.raise_for_status()
@@ -47,7 +55,7 @@ def fetch_hostgroup_members(
     hostgroup_name: str,
     nagios_ip: str,
     api_key: str
-) -> List:
+) -> List[str]:
     '''
     Get information about all hosts that are members of a specific hostgroup
 
@@ -65,7 +73,8 @@ def fetch_hostgroup_members(
 
     Returns
     -------
-    List: List of Dictionary objects containing host names and IDs
+    List: List of nagios hostnames for hosts belonging to the requested
+    hostgroup
 
     Raises
     ------
@@ -89,21 +98,28 @@ def fetch_hostgroup_members(
     except ValueError as e:
         raise e
 
+    # Extract only the host information from the json
     try:
         host_json = response_json['hostgroup'][0]['members']['host']
     except KeyError as e:
         raise e
 
-    return host_json
+    host_list = []
+
+    # Extract only the hostnames
+    for host in host_json:
+        host_list.append(host['host_name'])
+
+    return host_list
 
 
-def fetch_host_ip(
+def fetch_host_information(
     host_name: str,
     nagios_ip: str,
     api_key: str
-) -> str:
+) -> NagiosHost:
     '''
-    Get the IP address associated with a host from Nagios XI
+    Get the IP address and state of a host from Nagios XI
 
     Parameters
     ----------
@@ -119,7 +135,8 @@ def fetch_host_ip(
 
     Returns
     -------
-    str: The IP address associated with the specified host name
+    NagiosHost: Contains nagios hostname, IP address, current state, and
+    install_type property for the requested host
 
     Raises
     ------
@@ -130,11 +147,14 @@ def fetch_host_ip(
     IndexError: If the json returned from Nagios doesn't contain the expected
     keys
     '''
+
+    # A seperate query is needed to get the INSTALL_TYPE custom variable
     try:
         query_response = get_object_query(
             nagios_ip=nagios_ip,
             api_key=api_key,
-            object_query=f"host?host_name={host_name}")
+            # Customvars=1 allows this query to return the custom variable
+            object_query=f"host?host_name={host_name}&customvars=1")
     except HTTPError as e:
         raise e
 
@@ -142,10 +162,13 @@ def fetch_host_ip(
         response_json = query_response.json()
     except ValueError as e:
         raise e
+    host_ip = response_json['host'][0]['address']
+    if 'INSTALL_TYPE' in response_json['host'][0]['customvars']:
+        install_type = response_json['host'][0]['customvars']['INSTALL_TYPE']
+    else:
+        install_type = 'default'
 
-    try:
-        host_ip = response_json['host'][0]['address']
-    except IndexError as e:
-        raise e
-
-    return host_ip
+    return NagiosHost(
+        hostname=host_name,
+        ip_address=host_ip,
+        install_type=install_type)
