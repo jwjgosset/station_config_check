@@ -77,7 +77,6 @@ def submit(
         'XMLDATA': nrdp.to_xml()
     }
 
-    logging.debug(data)
     request = requests.post(
         f"{nagios}/nrdp/",
         data=data, **kwargs)
