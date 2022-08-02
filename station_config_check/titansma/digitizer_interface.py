@@ -136,7 +136,10 @@ class DigitizerInterface:
         cookiejar:
             The cookie jar to store the key in
         '''
-        request = urllib.request.Request(self.getUrl('/key'))
+
+        key_url = self.getUrl('/key')
+        logging.debug(f'Sending request to {key_url}')
+        request = urllib.request.Request(key_url)
         response = urllib.request.urlopen(request)
         cookiejar.addCookieToJar(response, request)
         return response.read().decode('ascii')
