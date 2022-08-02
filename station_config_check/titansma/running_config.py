@@ -84,7 +84,7 @@ def get_running_config(
     logging.debug(f"Trying to log into {titan_sma.hostname}")
     response = digitizerInterface.login(cookieJar)
 
-    logging.debug(response)
+    logging.debug(response.read().decode())
 
     logging.debug(f'Trying to download config for {titan_sma.hostname}')
     config = digitizerInterface.getConfiguration()
