@@ -145,7 +145,10 @@ class DigitizerInterface:
         key = response.read().decode('ascii')
         return key
 
-    def login(self, cookiejar):
+    def login(
+        self,
+        cookiejar: GlobalCookieJar
+    ):
         '''
         Login to the digitizer interface
 
@@ -166,7 +169,8 @@ class DigitizerInterface:
             login_url, method='POST')
         login_request.add_header('X-NMX-USERNAME', self.username)
         login_request.add_header('X-NMX-PASSWORD', encodedPassword)
-        return urllib.request.urlopen(login_request)
+        login_response = urllib.request.urlopen(login_request)
+        cookiejar.addCookieToJar(login_response, login_request)
 
     def getConfiguration(self) -> str:
         '''
