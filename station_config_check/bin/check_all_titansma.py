@@ -60,7 +60,16 @@ def main(
 
     checkresults = NagiosCheckResults()
 
+    # If the host status is not "OK", skip trying to download config file
     for titan in titans:
+        if titan.status != 0:
+            checkresults.append(NagiosCheckResult(
+                hostname=titan.hostname,
+                servicename='Config Check',
+                output='Host unreachable.'
+            ))
+            continue
+
         # Try to download the running config from the TitanSMA
         logging.debug(
             f'Trying to download running config from {titan.hostname}')
@@ -92,8 +101,9 @@ def main(
                 host_name=titan.hostname
             )
         # If there is no golden image for this Titan
-        except GoldenImageMissing as e:
-            logging.warning(e)
+        except GoldenImageMissing:
+            logging.debug(
+                'Golden image mising, writing running config to file')
             write_golden_image(
                 goldenimg_dir=goldenimg_dir,
                 host_name=titan.hostname,
@@ -117,7 +127,7 @@ def main(
 
     submit(
         nrdp=checkresults,
-        nagios=nagios_ip,
+        nagios=f'http://{nagios_ip}',
         token=config['nagios']['nrdp_token'])
     return
 

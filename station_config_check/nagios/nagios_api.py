@@ -9,6 +9,7 @@ class NagiosHost():
     hostname: str
     ip_address: str
     install_type: str
+    status: int
 
 
 def get_object_query(
@@ -168,7 +169,18 @@ def fetch_host_information(
     else:
         install_type = 'default'
 
+    try:
+        query_response = get_object_query(
+            nagios_ip=nagios_ip,
+            api_key=api_key,
+            object_query=f"hoststatus?host_name={host_name}")
+    except HTTPError as e:
+        raise e
+    response_json = query_response.json()
+
+    status = int(response_json['host'][0]['current_state'])
     return NagiosHost(
         hostname=host_name,
         ip_address=host_ip,
-        install_type=install_type)
+        install_type=install_type,
+        status=status)
