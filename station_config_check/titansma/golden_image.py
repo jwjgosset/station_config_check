@@ -1,4 +1,6 @@
+import logging
 import pathlib
+from os import makedirs
 
 
 class GoldenImageMissing(Exception):
@@ -60,6 +62,13 @@ def write_golden_image(
         The configuration as a single string
     '''
     network, station = host_name.split('-')[:2]
+
+    subdir = pathlib.Path(
+        f"{goldenimg_dir}/{network}/{station}/titansma")
+
+    if not subdir.exists():
+        logging.debug(f'Creating directory {subdir}')
+        makedirs(str(subdir))
 
     goldenimg_path = pathlib.Path(
         f"{goldenimg_dir}/{network}/{station}/titansma/latest.ttl")
