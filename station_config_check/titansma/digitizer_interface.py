@@ -137,12 +137,14 @@ class DigitizerInterface:
             The cookie jar to store the key in
         '''
 
-        key_url = self.getUrl('/key')
+        key_url = self.getUrl('key')
         logging.debug(f'Sending request to {key_url}')
         request = urllib.request.Request(key_url)
         response = urllib.request.urlopen(request)
         cookiejar.addCookieToJar(response, request)
-        return response.read().decode('ascii')
+        key = response.read().decode('ascii')
+        logging.debug(key)
+        return key
 
     def login(self, cookiejar):
         '''
@@ -157,7 +159,7 @@ class DigitizerInterface:
         key = self.getKey(cookiejar)
         encodedPassword = getHash(getHash(self.password) + key)
 
-        login_url = self.getUrl('/login')
+        login_url = self.getUrl('login')
 
         logging.debug(f'Sending request to {login_url}')
 
@@ -177,7 +179,7 @@ class DigitizerInterface:
             Dump of the running config file as a single string
         '''
 
-        config_url = self.getUrl('/config')
+        config_url = self.getUrl('config')
         logging.debug(f'Sending request to {config_url}')
         request = urllib.request.Request(config_url, method='POST')
         try:

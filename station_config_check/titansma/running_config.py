@@ -73,7 +73,8 @@ def get_running_config(
 
     str: The running config of the TitanSMA as a single string
     '''
-    cookieJar = digitizer_interface.GlobalCookieJar().addCookieToAllRequests()
+    cookieJar = digitizer_interface.GlobalCookieJar()
+    cookieJar = cookieJar.addCookieToAllRequests()
 
     digitizerInterface = digitizer_interface.DigitizerInterface(
         address=titan_sma.ip_address,
