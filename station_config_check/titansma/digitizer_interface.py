@@ -171,6 +171,8 @@ class DigitizerInterface:
         login_request.add_header('X-NMX-PASSWORD', encodedPassword)
         login_response = urllib.request.urlopen(login_request)
         cookiejar.addCookieToJar(login_response, login_request)
+        logging.debug(
+            f'Response to login request: {login_response.read().decode()}')
 
     def getConfiguration(self) -> str:
         '''
@@ -184,7 +186,7 @@ class DigitizerInterface:
 
         config_url = self.getUrl('config')
         logging.debug(f'Sending request to {config_url}')
-        request = urllib.request.Request(config_url, method='POST')
+        request = urllib.request.Request(config_url)
         try:
             response = urllib.request.urlopen(request)
         except urllib.error.HTTPError as e:
