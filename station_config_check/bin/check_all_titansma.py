@@ -1,5 +1,5 @@
 import logging
-from urllib.error import HTTPError
+import urllib
 import click
 import configparser
 from station_config_check.config import LogLevels
@@ -72,7 +72,7 @@ def main(
                     config=config
                 )
             )
-        except HTTPError as e:
+        except urllib.error.URLError as e:
             # If for some reason the config cannot be downloaded, log the
             # error and move on to the next TitanSMA
             logging.warning(e)
