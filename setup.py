@@ -27,7 +27,7 @@ setup(
     entry_points={
         'console_scripts': [
             'check_all_titansma_config = \
-                station_config_check.bin.check_all_titansma:main'
+                station-config-check.bin.check_all_titansma:main'
         ]
     }
 )
