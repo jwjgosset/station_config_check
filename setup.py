@@ -3,7 +3,7 @@ from setuptools import find_packages
 
 setup(
     name='station_config_check',
-    version='0.0.1',
+    version='0.1.0',
     description=('A tool for checking for changes in station device ' +
                  'configuration files'),
     author='Jonathan Gosset',

@@ -2,6 +2,7 @@ import logging
 from urllib.error import HTTPError
 import click
 import configparser
+from station_config_check.config import LogLevels
 from station_config_check.nagios.models import NagiosOutputCode
 from station_config_check.nagios.nrdp import NagiosCheckResult, \
     NagiosCheckResults, submit
@@ -27,12 +28,23 @@ from station_config_check.titansma.running_config import fetch_credentials, \
     '--cred-file',
     help=('File where credentials are stored')
 )
+@click.option(
+    '--log-level',
+    type=click.Choice([v.value for v in LogLevels]),
+    help="Log more information about the program's execution",
+    default=LogLevels.WARNING
+)
 def main(
     nagios_ip: str,
     goldenimg_dir: str,
-    cred_file: str
+    cred_file: str,
+    log_level: str
 ):
 
+    logging.basicConfig(
+        format='%(asctime)s:%(levelname)s:%(message)s',
+        datefmt="%Y-%m-%d %H:%M:%S",
+        level=log_level)
     # Read the cred file
     config = configparser.ConfigParser()
     config.read(cred_file)
@@ -50,6 +62,8 @@ def main(
 
     for titan in titans:
         # Try to download the running config from the TitanSMA
+        logging.debug(
+            f'Trying to download running config from {titan.hostname}')
         try:
             running_config = get_running_config(
                 titan_sma=titan,
@@ -71,6 +85,7 @@ def main(
             continue
 
         try:
+            logging.debug(f'Searching for {titan.hostname} in {goldenimg_dir}')
             # Try loading the goldem image from file
             golden_image = load_golden_image(
                 goldenimg_dir=goldenimg_dir,
@@ -84,21 +99,20 @@ def main(
                 host_name=titan.hostname,
                 config=running_config
             )
-
-        # If a golden image was found, proceed with comparing it to the
-        # running config
-        if golden_image is not None:
-            checkresults.append(get_config_check_results(
-                hostname=titan.hostname,
-                golden_image=golden_image,
-                running_config=running_config
-            ))
-
-        else:
             checkresults.append(NagiosCheckResult(
                 hostname=titan.hostname,
                 servicename='Config Check',
                 output='No Golden Image present. New golden image saved.'
+            ))
+
+        # If a golden image was found, proceed with comparing it to the
+        # running config
+        if golden_image is not None:
+            logging.debug(f'Comparing config for {titan.hostname}')
+            checkresults.append(get_config_check_results(
+                hostname=titan.hostname,
+                golden_image=golden_image,
+                running_config=running_config
             ))
 
     submit(
