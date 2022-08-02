@@ -143,7 +143,6 @@ class DigitizerInterface:
         response = urllib.request.urlopen(request)
         cookiejar.addCookieToJar(response, request)
         key = response.read().decode('ascii')
-        logging.debug(key)
         return key
 
     def login(self, cookiejar):
@@ -185,6 +184,6 @@ class DigitizerInterface:
         try:
             response = urllib.request.urlopen(request)
         except urllib.error.HTTPError as e:
-            print(e)
-        logging.debug(response)
+            logging.error(e)
+
         return response.read().decode()
