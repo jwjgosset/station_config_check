@@ -1,4 +1,5 @@
 import http
+import logging
 import os
 import hashlib
 import http.cookiejar
@@ -153,11 +154,15 @@ class DigitizerInterface:
         key = self.getKey(cookiejar)
         encodedPassword = getHash(getHash(self.password) + key)
 
+        login_url = self.getUrl('/login')
+
+        logging.debug(f'Sending request to {login_url}')
+
         login_request = urllib.request.Request(
-            self.getUrl('/login'), method='POST')
+            login_url, method='POST')
         login_request.add_header('X-NMX-USERNAME', self.username)
         login_request.add_header('X-NMX-PASSWORD', encodedPassword)
-        urllib.request.urlopen(login_request)
+        return urllib.request.urlopen(login_request)
 
     def getConfiguration(self) -> str:
         '''
@@ -168,9 +173,13 @@ class DigitizerInterface:
         str:
             Dump of the running config file as a single string
         '''
-        request = urllib.request.Request(self.getUrl('/config'))
+
+        config_url = self.getUrl('/config')
+        logging.debug(f'Sending request to {config_url}')
+        request = urllib.request.Request(config_url, method='POST')
         try:
             response = urllib.request.urlopen(request)
         except urllib.error.HTTPError as e:
             print(e)
+        logging.debug(response)
         return response.read().decode()

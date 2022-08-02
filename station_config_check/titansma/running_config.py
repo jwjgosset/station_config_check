@@ -1,3 +1,4 @@
+import logging
 from typing import List
 from dataclasses import dataclass
 from station_config_check.titansma import digitizer_interface
@@ -79,8 +80,12 @@ def get_running_config(
         username=credentials.username,
         password=credentials.password)
 
-    digitizerInterface.login(cookieJar)
+    logging.debug(f"Trying to log into {titan_sma.hostname}")
+    response = digitizerInterface.login(cookieJar)
 
+    logging.debug(response)
+
+    logging.debug(f'Trying to download config for {titan_sma.hostname}')
     config = digitizerInterface.getConfiguration()
 
     return config
