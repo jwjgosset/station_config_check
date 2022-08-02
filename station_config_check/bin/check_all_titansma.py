@@ -104,16 +104,16 @@ def main(
                 servicename='Config Check',
                 output='No Golden Image present. New golden image saved.'
             ))
+            continue
 
         # If a golden image was found, proceed with comparing it to the
         # running config
-        if golden_image is not None:
-            logging.debug(f'Comparing config for {titan.hostname}')
-            checkresults.append(get_config_check_results(
-                hostname=titan.hostname,
-                golden_image=golden_image,
-                running_config=running_config
-            ))
+        logging.debug(f'Comparing config for {titan.hostname}')
+        checkresults.append(get_config_check_results(
+            hostname=titan.hostname,
+            golden_image=golden_image,
+            running_config=running_config
+        ))
 
     submit(
         nrdp=checkresults,
