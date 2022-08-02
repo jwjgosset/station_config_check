@@ -178,7 +178,7 @@ def fetch_host_information(
         raise e
     response_json = query_response.json()
 
-    status = int(response_json['host'][0]['current_state'])
+    status = int(response_json['hoststatus'][0]['current_state'])
     return NagiosHost(
         hostname=host_name,
         ip_address=host_ip,

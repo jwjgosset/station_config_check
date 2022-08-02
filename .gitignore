@@ -2,3 +2,6 @@
 .config
 
 .mypy_cache
+
+.secret/
+.secret/*
