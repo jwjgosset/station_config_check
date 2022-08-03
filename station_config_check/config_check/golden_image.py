@@ -66,7 +66,7 @@ def write_golden_image(
     network, station = host_name.split('-')[:2]
 
     subdir = pathlib.Path(
-        f"{goldenimg_dir}/{network}/{station}/{device_type})")
+        f"{goldenimg_dir}/{network}/{station}/{device_type}")
 
     if not subdir.exists():
         logging.debug(f'Creating directory {subdir}')
