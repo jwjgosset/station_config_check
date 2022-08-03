@@ -24,7 +24,7 @@ def get_fortimus_list(
     List: A list of NagiosHost objects containing hostnames, ip addresses, etc
     '''
     fortimus_list = nagios_api.fetch_hostgroup_members(
-        hostgroup_name='fortimus',
+        hostgroup_name='digitizer-fortimus',
         nagios_ip=nagios_ip,
         api_key=api_key
     )
