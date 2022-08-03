@@ -1,18 +1,17 @@
-import logging
-import urllib
-import click
 import configparser
+import logging
+from urllib.error import HTTPError
+import click
 from station_config_check.config import LogLevels
+from station_config_check.fortimus.running_config import get_fortimus_list, \
+    get_running_config
 from station_config_check.nagios.models import NagiosOutputCode
 from station_config_check.nagios.nrdp import NagiosCheckResult, \
     NagiosCheckResults, submit
-from station_config_check.config_check.compare_config import \
-    get_config_check_results
 from station_config_check.config_check.golden_image import \
     GoldenImageMissing, load_golden_image, write_golden_image
-
-from station_config_check.titansma.running_config import fetch_credentials, \
-    get_running_config, get_titansma_list
+from station_config_check.config_check.compare_config import \
+    get_config_check_results
 
 
 @click.command()
@@ -52,41 +51,36 @@ def main(
     # Extract api_key from cred_file
     api_key = config['nagios']['api_key']
 
-    # Get a list of all members of the Titan-SMA hostgroup
-    titans = get_titansma_list(
+    fortimus_list = get_fortimus_list(
         nagios_ip=nagios_ip,
         api_key=api_key
     )
 
     checkresults = NagiosCheckResults()
 
-    # If the host status is not "OK", skip trying to download config file
-    for titan in titans:
-        if titan.status != 0:
+    for fortimus in fortimus_list:
+        if fortimus.status != 0:
             checkresults.append(NagiosCheckResult(
-                hostname=titan.hostname,
+                hostname=fortimus.hostname,
                 servicename='Config Check',
-                output='Host unreachable in Nagios'
+                output='Host unreachable.'
             ))
             continue
 
-        # Try to download the running config from the TitanSMA
+        # Try to download the running config from the fortimus
         logging.debug(
-            f'Trying to download running config from {titan.hostname}')
+            f'Trying to download running config from {fortimus.hostname}')
         try:
             running_config = get_running_config(
-                titan_sma=titan,
-                credentials=fetch_credentials(
-                    install_type=titan.install_type,
-                    config=config
-                )
+                fortimus=fortimus
             )
-        except urllib.error.URLError as e:
+        except HTTPError as e:
+
             # If for some reason the config cannot be downloaded, log the
-            # error and move on to the next TitanSMA
+            # error and move on to the next fortimus
             logging.warning(e)
             checkresults.append(NagiosCheckResult(
-                hostname=titan.hostname,
+                hostname=fortimus.hostname,
                 servicename='Config Check',
                 state=NagiosOutputCode.critical.value,
                 output='Host unreachable when downloading running config'
@@ -94,25 +88,25 @@ def main(
             continue
 
         try:
-            logging.debug(f'Searching for {titan.hostname} in {goldenimg_dir}')
+            logging.debug(
+                f'Searching for {fortimus.hostname} in {goldenimg_dir}')
             # Try loading the goldem image from file
             golden_image = load_golden_image(
                 goldenimg_dir=goldenimg_dir,
-                host_name=titan.hostname,
-                device_type='titansma'
+                host_name=fortimus.hostname,
+                device_type='fortimus'
             )
-        # If there is no golden image for this Titan
         except GoldenImageMissing:
             logging.debug(
                 'Golden image mising, writing running config to file')
             write_golden_image(
                 goldenimg_dir=goldenimg_dir,
-                host_name=titan.hostname,
+                host_name=fortimus.hostname,
                 config=running_config,
-                device_type='titansma'
+                device_type='fortimus'
             )
             checkresults.append(NagiosCheckResult(
-                hostname=titan.hostname,
+                hostname=fortimus.hostname,
                 servicename='Config Check',
                 output='No Golden Image present. New golden image saved.'
             ))
@@ -120,9 +114,9 @@ def main(
 
         # If a golden image was found, proceed with comparing it to the
         # running config
-        logging.debug(f'Comparing config for {titan.hostname}')
+        logging.debug(f'Comparing config for {fortimus.hostname}')
         checkresults.append(get_config_check_results(
-            hostname=titan.hostname,
+            hostname=fortimus.hostname,
             golden_image=golden_image,
             running_config=running_config
         ))

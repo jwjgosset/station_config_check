@@ -47,7 +47,8 @@ def get_titansma_list(
         nagioshost = nagios_api.fetch_host_information(
             host_name=titansma,
             nagios_ip=nagios_ip,
-            api_key=api_key
+            api_key=api_key,
+            get_type=True
         )
         host_list.append(nagioshost)
     return host_list
