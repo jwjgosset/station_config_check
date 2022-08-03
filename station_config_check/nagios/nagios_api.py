@@ -117,7 +117,8 @@ def fetch_hostgroup_members(
 def fetch_host_information(
     host_name: str,
     nagios_ip: str,
-    api_key: str
+    api_key: str,
+    get_type: bool = False
 ) -> NagiosHost:
     '''
     Get the IP address and state of a host from Nagios XI
@@ -150,25 +151,27 @@ def fetch_host_information(
     '''
 
     # A seperate query is needed to get the INSTALL_TYPE custom variable
-    try:
-        query_response = get_object_query(
-            nagios_ip=nagios_ip,
-            api_key=api_key,
-            # Customvars=1 allows this query to return the custom variable
-            object_query=f"host?host_name={host_name}&customvars=1")
-    except HTTPError as e:
-        raise e
+    if get_type is True:
+        try:
+            query_response = get_object_query(
+                nagios_ip=nagios_ip,
+                api_key=api_key,
+                # Customvars=1 allows this query to return the custom variable
+                object_query=f"host?host_name={host_name}&customvars=1")
+        except HTTPError as e:
+            raise e
 
-    try:
-        response_json = query_response.json()
-    except ValueError as e:
-        raise e
-    host_ip = response_json['host'][0]['address']
-    if 'INSTALL_TYPE' in response_json['host'][0]['customvars']:
-        install_type = response_json['host'][0]['customvars']['INSTALL_TYPE']
+        try:
+            response_json = query_response.json()
+        except ValueError as e:
+            raise e
+        if 'INSTALL_TYPE' in response_json['host'][0]['customvars']:
+            install_type = \
+                response_json['host'][0]['customvars']['INSTALL_TYPE']
+        else:
+            install_type = 'default'
     else:
         install_type = 'default'
-
     try:
         query_response = get_object_query(
             nagios_ip=nagios_ip,
@@ -177,7 +180,7 @@ def fetch_host_information(
     except HTTPError as e:
         raise e
     response_json = query_response.json()
-
+    host_ip = response_json['hoststatus'][0]['address']
     status = int(response_json['hoststatus'][0]['current_state'])
     return NagiosHost(
         hostname=host_name,

@@ -9,7 +9,8 @@ class GoldenImageMissing(Exception):
 
 def load_golden_image(
     goldenimg_dir: str,
-    host_name: str
+    host_name: str,
+    device_type: str
 ) -> str:
     '''
     Load the golden image of a digitizer
@@ -31,7 +32,7 @@ def load_golden_image(
     network, station = host_name.split('-')[:2]
 
     goldenimg_path = pathlib.Path(
-        f"{goldenimg_dir}/{network}/{station}/titansma/latest.ttl")
+        f"{goldenimg_dir}/{network}/{station}/{device_type}/latest.txt")
 
     if not goldenimg_path.exists():
         raise GoldenImageMissing()
@@ -45,7 +46,8 @@ def load_golden_image(
 def write_golden_image(
     goldenimg_dir: str,
     host_name: str,
-    config: str
+    config: str,
+    device_type: str
 ):
     '''
     Write or overwrite the golden image config for a TitanSMA
@@ -71,7 +73,7 @@ def write_golden_image(
         makedirs(str(subdir))
 
     goldenimg_path = pathlib.Path(
-        f"{goldenimg_dir}/{network}/{station}/titansma/latest.ttl")
+        f"{goldenimg_dir}/{network}/{station}/{device_type}/latest.txt")
 
     with open(goldenimg_path, mode='w') as f:
         f.writelines(config)

@@ -2,7 +2,6 @@ import difflib
 from typing import List
 from station_config_check.nagios.models import NagiosOutputCode, \
     NagiosPerformance, NagiosResult, NagiosVerbose
-
 from station_config_check.nagios.nrdp import NagiosCheckResult
 
 
@@ -96,7 +95,7 @@ def get_config_check_results(
         verbose=NagiosVerbose.multiline,
         status=state,
         performances=[performance],
-        details='\n'.join(differences)
+        details='Changes:\n' + '\n'.join(differences)
     )
 
     return NagiosCheckResult(
