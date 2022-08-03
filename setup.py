@@ -11,11 +11,12 @@ setup(
     packages=find_packages(exclude=('tests')),
     package_data={
     },
-    python_requires='>3.7',
+    python_requires='>3.6',
     # Requires python packages
     install_requires=[
         'requests',
         'click',
+        'dataclasses'
     ],
     extras_require={
         'dev': [

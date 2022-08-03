@@ -5,3 +5,19 @@
 
 .secret/
 .secret/*
+
+tests/files/
+
+venv/
+
+mypy.ini
+
+*.egg-info
+
+build
+
+.pytest_cache
+
+*/__pycache__
+
+*/nagios/__pycache__
