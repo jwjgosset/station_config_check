@@ -74,4 +74,4 @@ def write_golden_image(
         f"{goldenimg_dir}/{network}/{station}/titansma/latest.ttl")
 
     with open(goldenimg_path, mode='w') as f:
-        f.writelines(config.split('\n'))
+        f.writelines(config)
