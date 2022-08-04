@@ -3,7 +3,7 @@ import logging
 import os
 import hashlib
 import http.cookiejar
-import urllib.request
+from urllib import parse
 import urllib
 
 
@@ -83,6 +83,40 @@ def getHash(
     str: The resulting hash
     '''
     return hashlib.md5(bytearray(string, 'ascii')).hexdigest()
+
+
+class PowerManagerInterface:
+    def __init__(
+        self,
+        address: str,
+        username: str,
+        password: str
+    ):
+        self.address = address
+        self.username = username
+        self.password = password
+
+    def login(
+        self,
+        cookiejar: GlobalCookieJar
+    ):
+        url = f"http://{self.address}/login.php"
+        data = parse.urlencode({
+            'username': self.username,
+            'password': self.password
+        }).encode()
+        login_request = urllib.request.Request(
+            url, data=data, method='POST')
+        login_response = urllib.request.urlopen(login_request)
+        cookiejar.addCookieToJar(login_response, login_request)
+        logging.debug(
+            f'Response to login request: {login_response.read().decode()}')
+
+    def get_config(self):
+        url = f"http://{self.address}/system/exportSettings.php"
+        config_request = urllib.request.Request(url)
+        config_response = urllib.request.urlopen(config_request)
+        return config_response.read().decode()
 
 
 class DigitizerInterface:
