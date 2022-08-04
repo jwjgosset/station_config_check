@@ -54,4 +54,6 @@ def get_running_config(
     except urllib.error.HTTPError as e:
         logging.error(e)
 
-    return response.read().decode()
+    lines = response.read().decode().split('\r\n')
+
+    return '\n'.join(lines)
