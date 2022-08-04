@@ -1,7 +1,7 @@
 import logging
 from typing import List
 from dataclasses import dataclass
-from station_config_check.titansma import digitizer_interface
+from station_config_check.config_check import web_interface
 from station_config_check.nagios import nagios_api
 import configparser
 
@@ -74,10 +74,10 @@ def get_running_config(
 
     str: The running config of the TitanSMA as a single string
     '''
-    cookieJar = digitizer_interface.GlobalCookieJar()
+    cookieJar = web_interface.GlobalCookieJar()
     cookieJar = cookieJar.addCookieToAllRequests()
 
-    digitizerInterface = digitizer_interface.DigitizerInterface(
+    digitizerInterface = web_interface.DigitizerInterface(
         address=titan_sma.ip_address,
         username=credentials.username,
         password=credentials.password)
