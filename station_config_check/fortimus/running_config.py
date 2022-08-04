@@ -1,5 +1,6 @@
+import logging
 from typing import List
-import requests
+import urllib
 from station_config_check.nagios import nagios_api
 from station_config_check.nagios.nagios_api import NagiosHost
 
@@ -46,6 +47,11 @@ def get_running_config(
 ) -> str:
     url = f'http://{fortimus.ip_address}/config.txt'
 
-    request = requests.get(url)
+    logging.debug(f'Sending request to {url}')
+    request = urllib.request.Request(url)
+    try:
+        response = urllib.request.urlopen(request)
+    except urllib.error.HTTPError as e:
+        logging.error(e)
 
-    return request.text
+    return response.read().decode()
