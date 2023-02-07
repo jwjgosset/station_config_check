@@ -62,33 +62,6 @@ def parse_titan_config(
             streamers.append(TSMAStreamerConfig(streamer_config))
 
 
-config_special_values: Dict = {
-    '"true"^^xsd:boolean.': 'true',
-    '"false"^^xsd:boolean.': 'false',
-    # Accelerometer modes
-    '<http://nmx.ca/11/sensor/accelerometer/mode/eighth>.': '0.125g',
-    '<http://nmx.ca/11/sensor/accelerometer/mode/quarter>.': '0.25g',
-    '<http://nmx.ca/11/sensor/accelerometer/mode/half>.': '0.5g',
-    '<http://nmx.ca/11/sensor/accelerometer/mode/two>.': '2g',
-    '<http://nmx.ca/11/sensor/accelerometer/mode/one>.': '1g',
-    '<http://nmx.ca/11/sensor/accelerometer/mode/four>.': '4g',
-    # Output types
-    '<http://nmx.ca/14/channels/outputType/causal>.': 'Minimum phase',
-    '<http://nmx.ca/14/channels/outputType/linearPhase>.': 'Linear phase',
-    '<http://nmx.ca/14/channels/outputType/disabled>.': 'Disabled',
-    # Encoding types
-    '<http://nmx.ca/16/sampleEncoding/steim1>.': 'STEIM1',
-    '<http://nmx.ca/16/sampleEncoding/steim1Fixed4ByteDiffs>.':
-    'Uncompressed STEIM1',
-    # Timing sources and time sharing
-    '<http://nmx.ca/14/timing/source/gps>.': 'GNSS',
-    '<http://nmx.ca/14/timing/source/ptp>.': 'PTP',
-    '<http://nmx.ca/17/timing/source/ntp>.': 'NTP',
-    '<http://nmx.ca/17/timing/source/freerunning>.': 'Freerunning',
-    '<http://nmx.ca/17/timing/source/none>.': 'None'
-}
-
-
 def get_value(
     config_value: str
 ):
