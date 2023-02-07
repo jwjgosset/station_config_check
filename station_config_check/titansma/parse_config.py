@@ -1,8 +1,8 @@
 from typing import Dict, List
 from dataclasses import dataclass
 
-from station_config_check.titansma.models import NP_CONFIG, TITANSMA_CONFIG, \
-    WEBSOCKET_CONFIG
+from station_config_check.titansma.models import CONFIG_VALUES, NP_CONFIG, \
+    TITANSMA_CONFIG, WEBSOCKET_CONFIG
 
 
 @dataclass
@@ -68,8 +68,8 @@ def get_value(
     value: str = ''
 
     # Translate special values
-    if config_value in config_special_values:
-        value = config_special_values[config_value]
+    if config_value in CONFIG_VALUES:
+        value = CONFIG_VALUES[config_value]
     # Extract value from variable types
     elif '^^xsd:' in config_value:
         split_value = config_value.split('^^xsd:')
