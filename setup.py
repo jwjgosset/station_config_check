@@ -16,7 +16,8 @@ setup(
     install_requires=[
         'requests',
         'click',
-        'dataclasses'
+        'dataclasses',
+        'getpass'
     ],
     extras_require={
         'dev': [
@@ -30,7 +31,9 @@ setup(
             'check_all_titansma_config = \
                 station_config_check.bin.check_all_titansma:main',
             'check_all_fortimus_config = \
-                station_config_check.bin.check_all_fortimus:main'
+                station_config_check.bin.check_all_fortimus:main',
+            'get_titansma_config =\
+                station_config_check.bin.get_titansma_config:main'
         ]
     }
 )

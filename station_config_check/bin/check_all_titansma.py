@@ -75,7 +75,7 @@ def main(
             f'Trying to download running config from {titan.hostname}')
         try:
             running_config = get_running_config(
-                titan_sma=titan,
+                ip_address=titan.ip_address,
                 credentials=fetch_credentials(
                     install_type=titan.install_type,
                     config=config

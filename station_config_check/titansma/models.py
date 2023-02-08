@@ -3,6 +3,10 @@
 
 # This dictionary maps the configuration entries from a TitanSMA config file
 # to their respective names
+from typing import Dict, List
+from dataclasses import dataclass
+
+
 TITANSMA_CONFIG = {
     "<sensor/accelerometer/mode>": "Accelerometer Mode",
     "<retrieval/networkName>": "Network Code",
@@ -115,3 +119,50 @@ CONFIG_VALUES = {
     '<http://nmx.ca/17/timing/source/freerunning>.': 'Freerunning',
     '<http://nmx.ca/17/timing/source/none>.': 'None'
 }
+
+
+@dataclass
+class TSMAStreamerConfig(Dict):
+    self: Dict
+    '''
+    This class contains all the relevent configuration parameters for one
+    streamer in the TitanSMA configuration
+    '''
+
+    def __str__(self) -> str:
+        '''
+        Convert the object to string format
+        '''
+        output: str = ''
+        for config in self:
+            output += f'{config}: {self[config]}\n'
+
+        return output
+
+
+@dataclass
+class TitanSMAConfig:
+    device_config: Dict
+    streamer_config: List[TSMAStreamerConfig]
+
+    '''
+    This class contains all relevent TitanSMA configuration information used
+    for validation
+    '''
+
+    def __str__(self) -> str:
+        '''
+        Convert device config to string
+        '''
+        output: str = ''
+        output += 'TitanSMA Config\n'
+        output += '---------------\n'
+        for config in self.device_config:
+            output += f'{config}: {self.device_config[config]}\n'
+        output += '\nStreamers\n'
+        output += '---------\n'
+
+        # Convert streamer configs to str
+        for streamer in self.streamer_config:
+            output += (str(streamer) + '\n')
+        return output

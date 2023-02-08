@@ -1,3 +1,4 @@
+from getpass import getpass
 import logging
 from typing import List
 from dataclasses import dataclass
@@ -55,7 +56,7 @@ def get_titansma_list(
 
 
 def get_running_config(
-    titan_sma: nagios_api.NagiosHost,
+    ip_address: str,
     credentials: TitanSMACred
 ) -> str:
     '''
@@ -78,14 +79,14 @@ def get_running_config(
     cookieJar = cookieJar.addCookieToAllRequests()
 
     digitizerInterface = web_interface.DigitizerInterface(
-        address=titan_sma.ip_address,
+        address=ip_address,
         username=credentials.username,
         password=credentials.password)
 
-    logging.debug(f"Trying to log into {titan_sma.hostname}")
+    logging.debug(f"Trying to log into {ip_address}")
     digitizerInterface.login(cookieJar)
 
-    logging.debug(f'Trying to download config for {titan_sma.hostname}')
+    logging.debug(f'Trying to download config for {ip_address}')
     config = digitizerInterface.getConfiguration()
 
     return config
@@ -115,4 +116,21 @@ def fetch_credentials(
     password = config['TitanSMA'][install_type]
 
     return TitanSMACred(
-        username=username, password=password)
+        username=username,
+        password=password)
+
+
+def enter_credentials() -> TitanSMACred:
+    '''
+    Prompts the user for the login credentials for a TitanSMA
+
+    Returns
+    -------
+    TitanSMACred: The credentials entered by the user
+    '''
+    username = input('Enter the TitanSMA Username: ')
+    # Use getpass to avoid password peeking
+    password = getpass('Enter the TitanSMA Password: ')
+    return TitanSMACred(
+        username=username,
+        password=password)
